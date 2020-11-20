@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+	</head>
+	<body>
+		<script>
+			// 生命周期就是一个回调函数,当创建组件实例的过程中会调用对应的钩子方法,内部主要是使用callHook方法来调用对应的方法,核心是一个发布订阅模式,将钩子订阅好(内部采用数组的方式存储),在对应阶段进行发布
+			function mergeHook(parentVal, childVal) {
+				if (childVal) {
+					if (parentVal) {
+						return [parentVal].concat([childVal]);
+					} else {
+						return [childVal]; // 将钩子函数包装成一个数组
+					}
+				} else {
+					return [parentVal];
+				}
+			}
+			function mergeOptions(parent, child) {
+				let opts = {};
+				for (let key in child) {
+					// 内部会把钩子函数转化成一个数组
+					opts[key] = mergeHook(parent[key], child[key]);
+				} // 合并钩子方法
+				return opts;
+			}
+			function callHook(vm, hookName) {
+				vm.options[hookName] &&
+					vm.options[hookName].forEach((h) => h());
+			}
+			function Vue(options) {
+				//合并操作
+				this.options = mergeOptions(this.constructor.options, options);
+				callHook(this, 'beforeCreate');
+			}
+			// 全局组件 全局过滤器
+			Vue.options = {
+				beforeCreate() {
+					console.log('beforCreate parent');
+				},
+			}; // 默认的
+			new Vue({
+				beforeCreate() {
+					console.log('beforCreate child');
+				},
+			});
+		</script>
+	</body>
+</html>

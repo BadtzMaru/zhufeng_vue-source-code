@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+	</head>
+	<body>
+		<div id="app"></div>
+		<script>
+			let state = { count: 0 };
+			let active;
+			function defineReactive(obj) {
+				for (let key in obj) {
+					let value = obj[key]; // 对象对应的值
+					let dep = [];
+					Object.defineProperty(obj, key, {
+						get() {
+							if (active) {
+								dep.push(active); // 依赖收集
+							}
+							return value;
+						},
+						set(newValue) {
+							value = newValue;
+							dep.forEach((watcher) => watcher()); // 触发更新
+						},
+					});
+				}
+			}
+			defineReactive(state);
+			// 插入到页面的功能需要保存起来
+			const watcher = (fn) => {
+				active = fn;
+				fn();
+				active = null; // 后续不在watch中取值,不触发依赖收集
+			};
+			watcher(() => {
+				app.innerHTML = state.count; // 取值
+			});
+			watcher(() => {
+				console.log(state.count);
+			});
+		</script>
+	</body>
+</html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+	</head>
+	<body>
+		<div id="app"></div>
+		<script>
+			let state = [1, 2, 3];
+			let originalArr = Array.prototype;
+			let arrayMethods = Object.create(originalArr); // 拷贝原型方法
+			function defineReactive(obj) {
+				// 函数劫持
+				arrayMethods.push = function (...args) {
+					originalArr.push.call(this, ...args);
+					render();
+				};
+				obj.__proto__ = arrayMethods;
+			}
+			defineReactive(state);
+			function render() {
+				app.innerHTML = state;
+			}
+			render();
+			state.push(4);
+			// Vue.$set()来处理数组 -> 内部核心是用splice方法
+		</script>
+	</body>
+</html>

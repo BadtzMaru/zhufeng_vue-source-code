@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+	</head>
+	<body>
+		<div></div>
+		<script>
+			// nextTick中的回调是在下次DOM更新循环结束之后执行的延迟回调,在修改数据之后立即使用这个方法,获取更新后的DOM,原理就是异步方法(promise,mutationObserver,setImmediate,setTimeout)经常与事件环来一起来问(宏任务,微任务)
+
+			let cbs = [];
+			let pendings = false;
+
+			function render() {
+				console.log('渲染');
+			}
+
+			function flushCallbacks() {
+				// 批处理
+				cbs.forEach((fn) => fn());
+				pendings = false;
+			}
+			function nextTick(fn) {
+				cbs.push(fn);
+				if (!pendings) {
+					pendings = true;
+					Promise.resolve().then(flushCallbacks);
+				}
+			}
+			nextTick(render);
+			nextTick(render);
+			nextTick(render);
+			console.log('更改状态');
+			console.log('更改状态');
+			console.log('更改状态');
+		</script>
+	</body>
+</html>
